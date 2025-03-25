@@ -6,7 +6,7 @@
 //
 //
 //************************************************************
-#include "painlessMesh.h"
+#include "Libs/Painless_Mesh/src/painlessMesh.h"
 
 #define   MESH_PREFIX     "HalesMesh"
 #define   MESH_PASSWORD   "~06)cIq5w+Yrm.7"
