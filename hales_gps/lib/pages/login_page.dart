@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hales_gps/pages/dashboard_page.dart';
 import 'package:hales_gps/theme.dart';
-import 'home_page.dart';
+import 'maps_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -17,7 +18,7 @@ class _LoginPageState extends State<LoginPage> {
     if (_usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomePage()),
+        MaterialPageRoute(builder: (context) => DashboardPage()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -119,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                             labelStyle: GoogleFonts.poppins(color: Colors.white, fontSize: 14),
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                             suffixIcon: IconButton(
-                              icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off, color: Colors.white),
+                              icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off, color: Colors.white, size: 20),
                               onPressed: () {
                                 setState(() {
                                   _isPasswordVisible = !_isPasswordVisible;
@@ -134,16 +135,20 @@ class _LoginPageState extends State<LoginPage> {
                         // Botão de Login
                         ElevatedButton(
                           onPressed: _login,
-                          child: Text('Entrar'),
+                          child: Text('Entrar' ,
+                          style: GoogleFonts.poppins(fontSize: 14, color: Colors.white, fontWeight: FontWeight.normal),
+                          ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
+                            backgroundColor: AppTheme.blueLogo,
                             minimumSize: Size(double.infinity, 50),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                           ),
                         ),
 
                         SizedBox(height: 20),
-                        Text("OU", style: TextStyle(color: Colors.grey)),
+                        Text("OU", 
+                        style: GoogleFonts.poppins(fontSize: 14, color: Colors.white, fontWeight: FontWeight.normal),
+                        ),
                         SizedBox(height: 20),
 
                         // Botões Sociais
@@ -177,7 +182,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-            SizedBox(width: 8),
+            SizedBox(width: 15),
             // Seção da Imagem com cantos arredondados
             Expanded(
               flex: 6,

@@ -4,9 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTheme {
   // Definição das cores principais
   static const Color backgroundColor = Colors.black;
-  static const Color primaryColor = Color.fromARGB(255, 30, 30, 30);
+  static const Color primaryColor = Color.fromARGB(255, 35, 35, 35);
   static const Color secondaryColor = Color(0xFF252A34);
   static const Color greenPastel = Color(0xFF3d584f);
+  static const Color blueLogo = Color(0xFF069ee2);
   static const Color greenPastelText = Color.fromARGB(255, 138, 232, 199);
   static const Color accentColor = Color(0xFF08D9D6);
   static const Color textColor = Colors.white;
