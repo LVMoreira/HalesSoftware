@@ -1,0 +1,12 @@
+Instalar python
+Dependências: pip install pyserial flask flask-cors
+Abrir código do server, garantir que COM está certa (a do receiver) e que mais nada a está a usar
+Abrir powershell
+Executar o server com python server.py
+Se estiver bem aparece ✅ Porta serial COM10 aberta com sucesso!
+🚀 Servidor iniciado em http://127.0.0.1:5000/location
+
+Nota: Código bué especifico, neste momento está preparado para receber latitude,longitude (em float claro) neste formato específico. Se houver espaço ou o crl no meio dá merda. É preciso alterar o código se quisermos receber mais dados (data, hora etc.). Com nós tmb é preciso alterar
+
+
+
