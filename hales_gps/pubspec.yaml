@@ -12,3 +12,10 @@ dependencies:
   latlong2: ^0.9.0  # Trabalhar com coordenadas
   http: 1.3.0  # Para buscar dados GPS de uma API
   web_socket_channel: ^2.4.0  # Se quiseres receber dados em tempo real (opcional)
+  google_fonts: ^6.2.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/login/background.jpg
+    - assets/brand/hales_logo.png
