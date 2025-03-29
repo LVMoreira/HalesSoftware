@@ -1,32 +1,30 @@
-import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 
-class GPSService {
-  final StreamController<List<LatLng>> _controller = StreamController.broadcast();
+class GpsService {
+  static Future<List<Map<String, dynamic>>> fetchLocations() async {
+    try {
+      final response = await http.get(Uri.parse('http://127.0.0.1:5000/location'));
 
-  GPSService() {
-    _simulateGPSData(); // Inicia a simulação
-  }
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        double lat1 = data['latitude'];
+        double lon1 = data['longitude'];
 
-  // Stream para ouvir as atualizações dos dados GPS
-  Stream<List<LatLng>> get gpsStream => _controller.stream;
+        // Segunda localização simulada (por exemplo, um ponto próximo)
+        double lat2 = lat1 + 0.015;
+        double lon2 = lon1 + 0.015;
 
-  void _simulateGPSData() {
-    List<LatLng> locations = [
-      LatLng(38.7169, -9.1399), // Lisboa
-      LatLng(38.7071, -9.1355),
-      LatLng(38.7100, -9.1400),
-    ];
-    
-    int index = 0;
-    Timer.periodic(Duration(seconds: 3), (timer) {
-      // Atualiza a posição dos coletes ciclicamente
-      index = (index + 1) % locations.length;
-      _controller.add([locations[index]]);
-    });
-  }
+        return [
+          {'name': 'Localização 1', 'coordinates': LatLng(lat1, lon1)},
+          {'name': 'Localização 2', 'coordinates': LatLng(lat2, lon2)},
+        ];
+      }
+    } catch (e) {
+      print("Erro ao buscar localizações: $e");
+    }
 
-  void dispose() {
-    _controller.close();
+    return [];
   }
 }

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import '../gps_service.dart';
-import 'login_page.dart';
+import '/gps_service.dart';
 
 class MapsPage extends StatefulWidget {
   @override
@@ -10,45 +9,44 @@ class MapsPage extends StatefulWidget {
 }
 
 class _MapsPageState extends State<MapsPage> {
-  final GPSService gpsService = GPSService();
-  List<LatLng> currentLocations = [];
+  List<Map<String, dynamic>> locations = [];
+  bool isSidebarOpen = true;
+  int? selectedLocationIndex; // Índice da localização selecionada
 
   @override
   void initState() {
     super.initState();
-    gpsService.gpsStream.listen((newLocations) {
-      setState(() {
-        currentLocations = newLocations;
-      });
-    });
+    fetchLocations();
+    Future.delayed(Duration(seconds: 8), updateLocations);
   }
 
-  void _logout() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => LoginPage()),
-    );
+  Future<void> fetchLocations() async {
+    List<Map<String, dynamic>> newLocations = await GpsService.fetchLocations();
+    if (newLocations.isNotEmpty) {
+      setState(() {
+        locations = newLocations;
+      });
+    }
+  }
+
+  void updateLocations() {
+    fetchLocations();
+    Future.delayed(Duration(seconds: 8), updateLocations);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('GPS Tracker'),
-        backgroundColor: Colors.blue,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: _logout,
-          ),
-        ],
-      ),
       body: Stack(
         children: [
+          // Mapa
           FlutterMap(
             options: MapOptions(
-              center: LatLng(38.7169, -9.1399),
-              zoom: 10.0,
+              center: locations.isNotEmpty ? locations[0]['coordinates'] : LatLng(38.7169, -9.1399),
+              zoom: 12.0,
+              onTap: (_, __) {
+                setState(() => selectedLocationIndex = null); // Fecha o rótulo ao clicar fora
+              },
             ),
             children: [
               TileLayer(
@@ -56,39 +54,107 @@ class _MapsPageState extends State<MapsPage> {
                 subdomains: ['a', 'b', 'c'],
               ),
               MarkerLayer(
-                markers: currentLocations.map((location) {
+                markers: List.generate(locations.length, (index) {
+                  final loc = locations[index];
+                  final bool isSelected = index == selectedLocationIndex;
+                  final Color markerColor = isSelected ? Colors.blue : (index % 2 == 0 ? Colors.red : Colors.green);
+
                   return Marker(
-                    width: 40.0,
-                    height: 40.0,
-                    point: location,
-                    child: Icon(Icons.location_on, color: Colors.red, size: 40),
+                    point: loc['coordinates'],
+                    width: 50.0,
+                    height: 50.0,
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedLocationIndex = index;
+                          if (!isSidebarOpen) isSidebarOpen = true; // Abre a sidebar automaticamente
+                        });
+                      },
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Icon(Icons.location_pin, color: markerColor, size: 40.0),
+                          if (isSelected)
+                            Positioned(
+                              top: -20,
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.7),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: Text(
+                                  loc['name'],
+                                  style: TextStyle(color: Colors.white, fontSize: 12),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   );
-                }).toList(),
+                }),
               ),
             ],
           ),
+
+          // Sidebar minimizável
+          AnimatedPositioned(
+            duration: Duration(milliseconds: 300),
+            left: isSidebarOpen ? 0 : -250,
+            top: 0,
+            bottom: 0,
+            child: Container(
+              width: 250,
+              color: Colors.white.withOpacity(0.9),
+              child: Column(
+                children: [
+                  ListTile(
+                    title: Text('Localizações', style: TextStyle(fontWeight: FontWeight.bold)),
+                    trailing: IconButton(
+                      icon: Icon(Icons.close),
+                      onPressed: () => setState(() => isSidebarOpen = false),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: locations.length,
+                      itemBuilder: (context, index) {
+                        final loc = locations[index];
+                        final bool isSelected = index == selectedLocationIndex;
+
+                        return Container(
+                          color: isSelected ? Colors.blue.withOpacity(0.2) : Colors.transparent,
+                          child: ListTile(
+                            title: Text(loc['name']),
+                            subtitle: Text('${loc['coordinates'].latitude}, ${loc['coordinates'].longitude}'),
+                            onTap: () {
+                              setState(() {
+                                selectedLocationIndex = index;
+                              });
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Botão para abrir a sidebar
           Positioned(
-            bottom: 20,
-            right: 20,
+            left: isSidebarOpen ? 250 : 10,
+            top: 20,
             child: FloatingActionButton(
-              backgroundColor: Colors.blue,
-              child: Icon(Icons.my_location, color: Colors.white),
-              onPressed: () {
-                setState(() {
-                  // Voltar à localização inicial
-                  currentLocations = [LatLng(38.7169, -9.1399)];
-                });
-              },
+              mini: true,
+              child: Icon(Icons.menu),
+              onPressed: () => setState(() => isSidebarOpen = true),
             ),
           ),
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    gpsService.dispose();
-    super.dispose();
   }
 }
